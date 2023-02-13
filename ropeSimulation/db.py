@@ -51,6 +51,3 @@ class Point:
         self.previousPos = (x, y)
         self.fixed = fixed
         self.visible = visible
-
-    def __str__(self):
-        return str(self.Pos)
