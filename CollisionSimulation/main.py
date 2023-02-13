@@ -1,7 +1,5 @@
 import math
 import random
-from matplotlib import pyplot as plt
-
 import pygame
 from db import Database
 
