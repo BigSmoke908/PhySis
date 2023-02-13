@@ -1,5 +1,6 @@
 import math
 import random
+from matplotlib import pyplot as plt
 
 import pygame
 from db import Database
@@ -45,21 +46,18 @@ def detect_point_collision():
     for i, point1 in enumerate(db.points):
         for j, point2 in enumerate(db.points):
             if i < j:  # one point should not collide against itself
-                if point_distance(point1, point2) < (point1.size + point2.size):
-                    needed_distance = (point1.size + point2.size - point_distance(point1, point2))/2  # how far each point has to be moved
-                    x = point2.pos[0] - point1.pos[0]
-                    y = point2.pos[1] - point1.pos[1]
-                    point1.pos = ((-(x * needed_distance) / math.sqrt(x ** 2 + y ** 2)) + point1.pos[0], (-(y * needed_distance) / math.sqrt(x ** 2 + y ** 2)) + point1.pos[1])
-                    point2.pos = (((x * needed_distance) / math.sqrt(x ** 2 + y ** 2)) + point2.pos[0], ((y * needed_distance) / math.sqrt(x ** 2 + y ** 2)) + point2.pos[1])
+                x = point2.pos[0] - point1.pos[0]
+                y = point2.pos[1] - point1.pos[1]
+                d = length(x, y)
+                if d < (point1.size + point2.size):
+                    needed_distance = (point1.size + point2.size - d)/2  # how far each point has to be moved
+                    vec = ((x * needed_distance) / d, (y * needed_distance) / d)
+                    point1.pos = (-vec[0] + point1.pos[0], -vec[1] + point1.pos[1])
+                    point2.pos = (vec[0] + point2.pos[0], vec[1] + point2.pos[1])
 
 
 def distance_to_center(point):
     return length(point.pos[0] - containerPos[0], point.pos[1] - containerPos[1])
-
-
-# distance between the centers of the two points
-def point_distance(point1, point2):
-    return length(point1.pos[0] - point2.pos[0], point1.pos[1] - point2.pos[1])
 
 
 def length(x, y):
@@ -85,7 +83,7 @@ running = True
 frames = 0
 num = 0
 while running:
-    if frames == 10000:
+    if frames == 1:
         gravity()
         air_resistance()
         for i in range(1):
@@ -96,10 +94,11 @@ while running:
         frames = 0
 
         if num % 50 == 0:
-            db.add_point(containerPos[0] + 400, containerPos[1] - 400, size=random.randrange(10, 40), col=(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)))
-            if len(db.points) == 75:
-                db.remove_point(0)
-            num = 0
+            # db.add_point(containerPos[0] + 400, containerPos[1] - 400, size=random.randrange(10, 40), col=(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)))
+
+            if len(db.points) < 100:
+                c = random.randrange(50, 256)
+                db.add_point(containerPos[0] + 300, containerPos[1] - 400, size=c/8, col=(c, c, c))
         num += 1
     frames += 1
 
