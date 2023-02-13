@@ -8,6 +8,9 @@ class Database:
     def add_point(self, x, y, size=10, col=(200, 200, 200)):
         self.points.append(Point(x, y, size, col))
 
+    def remove_point(self, i):
+        self.points.pop(i)
+
 
 class Point:
     pos = None
