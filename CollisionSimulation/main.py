@@ -10,7 +10,7 @@ WQHD = (2560, 1440)
 FHD = (1920, 1080)
 res = FHD
 screen = pygame.display.set_mode(res)
-bgCol = (25, 25, 25)
+bgCol = (10, 10, 13)
 containerCol = (0, 0, 0)
 containerSize = res[1] // 2 - 5
 containerPos = (res[0] // 2, res[1] // 2)
@@ -19,16 +19,27 @@ db = Database()
 
 def render():
     screen.fill(bgCol)
-    pygame.draw.circle(screen, containerCol, (res[0] // 2, res[1] // 2), containerSize)
+    # pygame.draw.circle(screen, containerCol, containerPos, containerSize)
 
-    for point in db.points:
-        pygame.draw.circle(screen, point.col, point.pos, point.size)
+    for p, point in enumerate(db.points):
+        if point.size <= 0:
+            db.remove_point(p)
+            continue
+        pygame.draw.circle(screen, point.get_col(), point.pos, point.size)
+
+        for ind, t in enumerate(point.trail):
+            pygame.draw.circle(screen, t[1], t[0], t[2] * ind / (len(point.trail) * 2))
     pygame.display.update()
 
 
 def gravity():
     for point in db.points:
-        point.pos = (point.pos[0], point.pos[1] + 0.1)  # can be adjusted to different value -> different gravity forces
+        point.pos = (point.pos[0], point.pos[1] + 0.5)  # can be adjusted to different value -> different gravity forces
+
+
+def centergravity():
+    for point in db.points:
+        point.pos = ((containerPos[0] - point.pos[0]) / 300 + point.pos[0], (containerPos[1] - point.pos[1]) / 300 + point.pos[1])
 
 
 # collision against the outside of the box
@@ -72,31 +83,32 @@ def air_resistance():
 
 def move_points():
     for point in db.points:
-        previous = point.pos
-        point.pos = ((point.pos[0] * 2) - point.previousPos[0], (point.pos[1] * 2) - point.previousPos[1])
-        point.previousPos = previous
+        point.move()
 
 
 running = True
+maximumReached = False
 frames = 0
 num = 0
 while running:
-    if frames == 1:
+    if frames % 1000 == 0:
         gravity()
-        air_resistance()
-        for i in range(1):
-            detect_edge_collisions()
+        centergravity()
+        # air_resistance()
+        for i in range(3):
+            # detect_edge_collisions()
             detect_point_collision()
+
         move_points()
         render()
-        frames = 0
 
-        if num % 50 == 0:
+        if frames % 10 == 0 and len(db.points) < 50 and not maximumReached:
             # db.add_point(containerPos[0] + 400, containerPos[1] - 400, size=random.randrange(10, 40), col=(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)))
-
-            if len(db.points) < 100:
-                c = random.randrange(50, 256)
-                db.add_point(containerPos[0] + 300, containerPos[1] - 400, size=c/8, col=(c, c, c))
+            # db.add_point(1280 + 450, 720 - 450, size=4, col=(0, 0, 0))
+            db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
+            frames = 0
+        elif len(db.points) >= 50:
+            maximumReached = True
         num += 1
     frames += 1
 
@@ -104,3 +116,5 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False
+        elif event.type == pygame.KEYDOWN:
+            db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
