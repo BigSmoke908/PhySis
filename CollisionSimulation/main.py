@@ -2,6 +2,7 @@ import math
 import random
 import pygame
 from db import Database
+from render_png import create_png
 
 
 pygame.init()
@@ -17,9 +18,10 @@ containerPos = (res[0] // 2, res[1] // 2)
 db = Database()
 
 
-def render():
+# can also create a png instead of rendering to pygame
+def render(to_png=False, file=None):
     screen.fill(bgCol)
-    # pygame.draw.circle(screen, containerCol, containerPos, containerSize)
+    pygame.draw.circle(screen, containerCol, containerPos, containerSize)
 
     for p, point in enumerate(db.points):
         if point.size <= 0:
@@ -31,10 +33,13 @@ def render():
             pygame.draw.circle(screen, t[1], t[0], t[2] * ind / (len(point.trail) * 2))
     pygame.display.update()
 
+    if to_png:
+        create_png(db, file, res, containerCol, containerPos, containerSize, bgCol)
+
 
 def gravity():
     for point in db.points:
-        point.pos = (point.pos[0], point.pos[1] + 0.5)  # can be adjusted to different value -> different gravity forces
+        point.pos = (point.pos[0], point.pos[1] + 0.1)  # can be adjusted to different value -> different gravity forces
 
 
 def centergravity():
@@ -87,29 +92,38 @@ def move_points():
 
 
 running = True
-maximumReached = False
 frames = 0
 num = 0
+saved = 0
+save_frames = True
 while running:
-    if frames % 1000 == 0:
+    if frames % 1 == 0:
         gravity()
-        centergravity()
-        # air_resistance()
-        for i in range(3):
-            # detect_edge_collisions()
+        air_resistance()
+        for i in range(1):
+            detect_edge_collisions()
             detect_point_collision()
 
         move_points()
-        render()
+        if save_frames and frames % 5 == 0:
+            render(to_png=True, file=f'files/{saved}.png')
+        else:
+            # render()
+            pass
 
-        if frames % 10 == 0 and len(db.points) < 50 and not maximumReached:
+        if frames % 50 == 0 and len(db.points) < 50:
             # db.add_point(containerPos[0] + 400, containerPos[1] - 400, size=random.randrange(10, 40), col=(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)))
+            db.add_point(containerPos[0] + 300, containerPos[1] - 200, size=random.randrange(15, 26), col=(220, 220, 220))
             # db.add_point(1280 + 450, 720 - 450, size=4, col=(0, 0, 0))
-            db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
+            # db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
             frames = 0
         elif len(db.points) >= 50:
-            maximumReached = True
+            db.remove_point(0)
+            save_frames = True
         num += 1
+        if save_frames:
+            # db.save(f'files/{saved}.json')
+            saved += 1
     frames += 1
 
     for event in pygame.event.get():
@@ -117,4 +131,5 @@ while running:
             pygame.quit()
             running = False
         elif event.type == pygame.KEYDOWN:
-            db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
+            # db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
+            print(saved)
