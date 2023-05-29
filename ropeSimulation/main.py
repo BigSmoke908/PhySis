@@ -73,7 +73,7 @@ while running:
     render()
     frames += 1
 
-    db.add_point(*mouse)
+    # db.add_point(*mouse)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -106,7 +106,7 @@ while running:
                             removed = True
                             break
                     if not removed:
-                        db.add_connection(selected, underCursor, rope=True)
+                        db.add_connection(selected, underCursor)
                     selected = -1
         elif event.type == pygame.KEYDOWN:
             paused = not paused

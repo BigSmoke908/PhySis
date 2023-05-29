@@ -95,7 +95,7 @@ running = True
 frames = 0
 num = 0
 saved = 0
-save_frames = True
+save_frames = False
 while running:
     if frames % 1 == 0:
         gravity()
@@ -108,18 +108,18 @@ while running:
         if save_frames and frames % 5 == 0:
             render(to_png=True, file=f'files/{saved}.png')
         else:
-            # render()
+            render()
             pass
 
-        if frames % 50 == 0 and len(db.points) < 50:
-            # db.add_point(containerPos[0] + 400, containerPos[1] - 400, size=random.randrange(10, 40), col=(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)))
-            db.add_point(containerPos[0] + 300, containerPos[1] - 200, size=random.randrange(15, 26), col=(220, 220, 220))
+        if frames % 50 == 0 and len(db.points) < 100:
+            db.add_point(containerPos[0] + 400, containerPos[1] - 400, size=random.randrange(10, 40), col=(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256)))
+            # db.add_point(containerPos[0] + 300, containerPos[1] - 200, size=random.randrange(15, 26), col=(220, 220, 220))
             # db.add_point(1280 + 450, 720 - 450, size=4, col=(0, 0, 0))
             # db.add_point(random.randrange(res[0]), random.randrange(res[1]), size=10, col=(0, 0, 0))
             frames = 0
-        elif len(db.points) >= 50:
+        elif len(db.points) >= 200:
             db.remove_point(0)
-            save_frames = True
+            save_frames = False
         num += 1
         if save_frames:
             # db.save(f'files/{saved}.json')
